@@ -27,19 +27,23 @@ func main() {
 		return
 	}
 
+	pass := 0
+	var min float32 = float32(timeout) * 1e3
+	var max float32 = 0
+	var sum float32 = 0
 	for i := 1; i <= list; i++ {
-		open := "is open"
-		t := time.Now()
-		c, err := net.DialTimeout("tcp", h.String(), time.Duration(timeout)*time.Second)
-		pingt := float32(time.Now().UnixNano()-t.UnixNano()) / 1e6
-		if err != nil {
-			open = "no response"
-		} else {
-			c.Close()
+		p, t := ping(h, i)
+		if t < min {
+			min = t
+		} else if t > max {
+			max = t
 		}
-		fmt.Println(i, "- Ping", h.String(), "/tcp - Port", open, "- time=", pingt, "ms")
+		sum += t
+		pass += p
 		time.Sleep(time.Duration(wait) * time.Second)
 	}
+	fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list, "% Fail)")
+	fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
 }
 
 func parse() {
@@ -76,4 +80,20 @@ func help() {
 	fmt.Println("eg: tcping -w 10 -l 6 -t 3 google.com 443")
 	fmt.Println()
 	os.Exit(0)
+}
+
+func ping(h *net.TCPAddr, i int) (pass int, pingt float32) {
+	open := "is open"
+	t := time.Now()
+	c, err := net.DialTimeout("tcp", h.String(), time.Duration(timeout)*time.Second)
+	pingt = float32(time.Now().UnixNano()-t.UnixNano()) / 1e6
+	if err != nil {
+		open = "no response"
+		pass = 0
+	} else {
+		c.Close()
+		pass = 1
+	}
+	fmt.Println(i, "- Ping", h.String(), "/tcp - Port", open, "- time=", pingt, "ms")
+	return pass, pingt
 }
