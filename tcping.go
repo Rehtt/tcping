@@ -63,7 +63,7 @@ func parse() {
 
 func help() {
 	fmt.Println()
-	fmt.Println("TCP Ping v0.1")
+	fmt.Println("TCP Ping v0.1.1")
 	fmt.Println("https://github.com/rehtt/tcping")
 	fmt.Println("Use: tcping [-w] [-l] [-t] <IP address / Host> [Port (default: 80)]")
 	fmt.Println("Must fill in IP address or Host.")
