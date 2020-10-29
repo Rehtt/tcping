@@ -9,10 +9,11 @@ import (
 )
 
 var (
-	addr string
-	port = "80"
-	list int
-	wait int
+	addr    string
+	port    = "80"
+	list    int
+	wait    int
+	timeout int
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 	for i := 1; i <= list; i++ {
 		open := "is open"
 		t := time.Now()
-		c, err := net.DialTimeout("tcp", h.String(), 2*time.Second)
+		c, err := net.DialTimeout("tcp", h.String(), time.Duration(timeout)*time.Second)
 		pingt := float32(time.Now().UnixNano()-t.UnixNano()) / 1e6
 		if err != nil {
 			open = "no response"
@@ -44,8 +45,9 @@ func main() {
 func parse() {
 	h := flag.Bool("h", false, "Show Help")
 	h2 := flag.Bool("help", false, "Show Help")
-	flag.IntVar(&wait, "w", 1, "wait")
-	flag.IntVar(&list, "l", 3, "list")
+	flag.IntVar(&wait, "w", 1, "")
+	flag.IntVar(&list, "l", 3, "")
+	flag.IntVar(&timeout, "t", 2, "")
 	flag.Parse()
 	if *h || *h2 {
 		help()
@@ -63,14 +65,15 @@ func help() {
 	fmt.Println()
 	fmt.Println("TCP Ping v0.1")
 	fmt.Println("https://github.com/rehtt/tcping")
-	fmt.Println("Use: tcping [-w] [-l] <IP address / Host> [Port (default: 80)]")
+	fmt.Println("Use: tcping [-w] [-l] [-t] <IP address / Host> [Port (default: 80)]")
 	fmt.Println("Must fill in IP address or Host.")
 	fmt.Println("You can choose to fill in the port, port default 80.")
 	fmt.Println("-w 5\t: ping every 5 seconds, default 1")
 	fmt.Println("-l 5\t: send 5 pings, default 3")
+	fmt.Println("-t 5\t: timeout 5 seconds, default 2")
 	fmt.Println("eg: tcping google.com")
 	fmt.Println("eg: tcping google.com 443")
-	fmt.Println("eg: tcping -w 10 -l 6 google.com 443")
+	fmt.Println("eg: tcping -w 10 -l 6 -t 3 google.com 443")
 	fmt.Println()
 	os.Exit(0)
 }
