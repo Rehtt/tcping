@@ -35,7 +35,8 @@ func main() {
 		p, t := ping(h, i)
 		if t < min {
 			min = t
-		} else if t > max {
+		}
+		if t > max {
 			max = t
 		}
 		sum += t
