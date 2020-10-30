@@ -55,13 +55,13 @@ func main() {
 				time.Sleep(time.Duration(wait) * time.Second)
 			}
 			fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list*100, "% Fail)")
-			pp := " is Close\n"
+			pp := " no response\n"
 			if pass > 0 {
 				fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
 				pp = " is Open\n"
 			}
 			fmt.Println()
-			result += addr + ":" + strconv.Itoa(startPort) + pp
+			result += strconv.Itoa(startPort) + "/tcp" + pp
 		}
 	}
 	fmt.Println(result)
