@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
 var (
 	addr    string
-	port    = "80"
+	ports   [][]string
 	list    int
 	wait    int
 	timeout int
@@ -18,35 +20,51 @@ var (
 
 func main() {
 	parse()
-	h, err := net.ResolveTCPAddr("tcp", addr+":"+port)
-	if err != nil {
-		fmt.Println()
-		fmt.Println("DNS: Could not find host -", addr+":"+port)
-		fmt.Println("'tcping -h' View help")
-		fmt.Println()
-		return
-	}
+	result := ""
+	for _, vp := range ports {
+		startPort, _ := strconv.Atoi(vp[0])
+		endPort := startPort
+		if len(vp) > 1 {
+			endPort, _ = strconv.Atoi(vp[1])
+		}
 
-	pass := 0
-	var min float32 = float32(timeout) * 1e3
-	var max float32 = 0
-	var sum float32 = 0
-	for i := 1; i <= list; i++ {
-		p, t := ping(h, i)
-		if t < min {
-			min = t
+		for ; startPort <= endPort; startPort++ {
+			h, err := net.ResolveTCPAddr("tcp", addr+":"+strconv.Itoa(startPort))
+			if err != nil {
+				fmt.Println()
+				fmt.Println("DNS: Could not find host -", addr+":"+strconv.Itoa(startPort))
+				fmt.Println("'tcping -h' View help")
+				fmt.Println()
+				return
+			}
+
+			pass := 0
+			var min float32 = float32(timeout) * 1e3
+			var max float32 = 0
+			var sum float32 = 0
+			for i := 1; i <= list; i++ {
+				p, t := ping(h, i)
+				if t < min {
+					min = t
+				}
+				if t > max {
+					max = t
+				}
+				sum += t
+				pass += p
+				time.Sleep(time.Duration(wait) * time.Second)
+			}
+			fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list*100, "% Fail)")
+			pp := " is Close\n"
+			if pass > 0 {
+				fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
+				pp = " is Open\n"
+			}
+			fmt.Println()
+			result += addr + ":" + strconv.Itoa(startPort) + pp
 		}
-		if t > max {
-			max = t
-		}
-		sum += t
-		pass += p
-		time.Sleep(time.Duration(wait) * time.Second)
 	}
-	fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list*100, "% Fail)")
-	if pass > 0 {
-		fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
-	}
+	fmt.Println(result)
 }
 
 func parse() {
@@ -63,23 +81,44 @@ func parse() {
 	if addr == "" {
 		help()
 	}
-	if len(flag.Args()) == 2 {
-		port = flag.Arg(1)
+	if len(flag.Args()) > 1 {
+		for i := 1; i < len(flag.Args()); i++ {
+			p := strings.Split(flag.Arg(i), "-")
+			if len(p) > 2 {
+				help()
+			}
+			var port []string
+			for _, v := range p {
+				if v != "" {
+					port = append(port, v)
+				}
+			}
+			if port == nil {
+				help()
+			}
+			ports = append(ports, port)
+
+		}
+
+	} else {
+		ports = append(ports, []string{"80"})
 	}
 }
 
 func help() {
 	fmt.Println()
-	fmt.Println("TCP Ping v0.1.1")
+	fmt.Println("TCP Ping v0.2.0")
 	fmt.Println("https://github.com/rehtt/tcping")
 	fmt.Println("Use: tcping [-w] [-l] [-t] <IP address / Host> [Port (default: 80)]")
 	fmt.Println("Must fill in IP address or Host.")
-	fmt.Println("You can choose to fill in the port, port default 80.")
+	fmt.Println("You can choose to fill in the port, you can add multiple ports or use \"-\" to specify the range, port default 80.")
 	fmt.Println("-w 5\t: ping every 5 seconds, default 1")
 	fmt.Println("-l 5\t: send 5 pings, default 3")
 	fmt.Println("-t 5\t: timeout 5 seconds, default 2")
 	fmt.Println("eg: tcping google.com")
 	fmt.Println("eg: tcping google.com 443")
+	fmt.Println("eg: tcping google.com 80 443")
+	fmt.Println("eg: tcping google.com 80-85 443-448")
 	fmt.Println("eg: tcping -w 10 -l 6 -t 3 google.com 443")
 	fmt.Println()
 	os.Exit(0)
