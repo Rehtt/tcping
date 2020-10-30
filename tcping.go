@@ -42,8 +42,10 @@ func main() {
 		pass += p
 		time.Sleep(time.Duration(wait) * time.Second)
 	}
-	fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list, "% Fail)")
-	fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
+	fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list*100, "% Fail)")
+	if pass > 0 {
+		fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
+	}
 }
 
 func parse() {

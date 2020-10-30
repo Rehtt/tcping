@@ -1,9 +1,7 @@
 $version='0.0.0';
 $tmpContent = Get-Content './tcping.go';
-for ($i=0; $i -le $tmpContent.length; $i++)
-{
-    if($tmpContent[$i] -like '*TCP Ping *')　
-    {
+for ($i=0; $i -le $tmpContent.length; $i++){
+    if($tmpContent[$i] -like '*TCP Ping *')　{
         $version=[regex]::Matches($tmpContent[$i],'(([0-9]|([1-9]([0-9]*))).){2}([0-9]|([1-9]([0-9]*)))').Value;
     }
 }
