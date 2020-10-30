@@ -1,5 +1,5 @@
-$version='0.0.0'
-$tmpContent = Get-Content './tcping.go'
+$version='0.0.0';
+$tmpContent = Get-Content './tcping.go';
 for ($i=0; $i -le $tmpContent.length; $i++)
 {
     if($tmpContent[$i] -like '*TCP Ping *')　
@@ -16,6 +16,9 @@ foreach($o in $os){
         if(!($o -eq 'windows' -and $a -eq 'arm')){
             $env:GOARCH=$a;
             $name="tcping_"+$version+"_"+$o+"_"+$a;
+            if($o -eq 'windows'){
+                $name+=".exe";
+            }
             "["+$o+"_"+$a+"]"
             go build -ldflags '-w -s' -o $name;
             upx -9 $name;
