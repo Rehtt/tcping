@@ -1,25 +1,27 @@
-$version='0.0.0';
+$version = '0.0.0';
 $tmpContent = Get-Content './tcping.go';
-for ($i=0; $i -le $tmpContent.length; $i++){
-    if($tmpContent[$i] -like '*TCP Ping *')　{
-        $version=[regex]::Matches($tmpContent[$i],'(([0-9]|([1-9]([0-9]*))).){2}([0-9]|([1-9]([0-9]*)))').Value;
+for ($i = 0; $i -le $tmpContent.length; $i++) {
+    if ($tmpContent[$i] -like '*TCP Ping *')　{
+        $version = [regex]::Matches($tmpContent[$i], '(([0-9]|([1-9]([0-9]*))).){2}([0-9]|([1-9]([0-9]*)))').Value;
     }
 }
-$os='windows','linux';
-$arch='amd64','386','arm';
 
-foreach($o in $os){
-    $env:GOOS=$o;
-    foreach($a in $arch){
-        if(!($o -eq 'windows' -and $a -eq 'arm')){
-            $env:GOARCH=$a;
-            $name="tcping_"+$version+"_"+$o+"_"+$a;
-            if($o -eq 'windows'){
-                $name+=".exe";
-            }
-            "["+$o+"_"+$a+"]"
-            go build -ldflags '-w -s' -o $name;
-            upx -9 $name;
+$windows = 'amd64', '386';
+$linux = 'amd64', '386', 'arm', 'mipsle';
+
+function build($os, $arch) {
+    foreach ($a in $arch) {
+        $env:GOOS = $os;
+        $env:GOARCH = $a;
+        $name = "tcping_" + $version + "_" + $os + "_" + $a;
+        if ($os -eq 'windows') {
+            $name += '.exe';
         }
+        "[" + $os + "_" + $a + "]"
+        go build -ldflags '-w -s' -o $name;
+        upx -9 $name;
     }
 }
+
+build 'windows' $windows;
+build 'linux' $linux;
