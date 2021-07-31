@@ -31,10 +31,8 @@ func main() {
 		for ; startPort <= endPort; startPort++ {
 			h, err := net.ResolveTCPAddr("tcp", addr+":"+strconv.Itoa(startPort))
 			if err != nil {
-				fmt.Println()
-				fmt.Println("DNS: Could not find host -", addr+":"+strconv.Itoa(startPort))
-				fmt.Println("'tcping -h' View help")
-				fmt.Println()
+				fmt.Printf("\nDNS: Could not find host - %s : %d\n", addr, startPort)
+				fmt.Println(`"tcping -h" View help`)
 				return
 			}
 
@@ -54,10 +52,10 @@ func main() {
 				pass += p
 				time.Sleep(time.Duration(wait) * time.Second)
 			}
-			fmt.Println("Sent=", list, ", Successful=", pass, ", Failed=", list-pass, "(", (list-pass)/list*100, "% Fail)")
+			fmt.Printf("Sent= %d, Successful= %d, Failed= %d( %d%% Fail)\n", list, pass, list-pass, (list-pass)/list*100)
 			pp := " no response\n"
 			if pass > 0 {
-				fmt.Println("Minimum=", min, "ms, Maximum=", max, "ms, Average=", sum/float32(pass), "ms")
+				fmt.Printf("Minimum= %.2fms, Maximum= %.2fms, Average= %.2fms\n", min, max, sum/float32(pass))
 				pp = " is Open\n"
 			}
 			fmt.Println()
@@ -136,6 +134,6 @@ func ping(h *net.TCPAddr, i int) (pass int, pingt float32) {
 		c.Close()
 		pass = 1
 	}
-	fmt.Println(i, "- Ping", h.String(), "/tcp - Port", open, "- time=", pingt, "ms")
+	fmt.Printf("%d - Ping %s /tcp - Port %s - time= %.2fms\n", i, h.String(), open, pingt)
 	return pass, pingt
 }
