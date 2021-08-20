@@ -1,3 +1,19 @@
+# install
+use scoop:
+```
+scoop bucket add scoop-rehtt "https://github.com/Rehtt/scoop-rehtt.git"
+scoop install tcping
+```
+
+use go:
+```
+go get -u github.com/Rehtt/tcping
+```
+
+or download [file](https://github.com/Rehtt/tcping/releases/)
+
+
+# use
 TCP Ping v0.2.0
 https://github.com/rehtt/tcping
 Use: tcping [-w] [-l] [-t] <IP address / Host> [Port (default: 80)]
