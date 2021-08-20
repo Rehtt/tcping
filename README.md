@@ -14,6 +14,7 @@ or download [file](https://github.com/Rehtt/tcping/releases/)
 
 
 # use
+```
 TCP Ping v0.2.0
 https://github.com/rehtt/tcping
 Use: tcping [-w] [-l] [-t] <IP address / Host> [Port (default: 80)]
@@ -27,3 +28,4 @@ eg: tcping google.com 443
 eg: tcping google.com 80 443
 eg: tcping google.com 80-85 443-448
 eg: tcping -w 10 -l 6 -t 3 google.com 443
+```
