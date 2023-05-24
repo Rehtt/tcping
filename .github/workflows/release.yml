@@ -34,4 +34,4 @@ jobs:
           goarch: ${{ matrix.goarch }}
           binary_name: "tcping"
           executable_compression: upx
-          compress_assets: true
+          compress_assets: OFF
