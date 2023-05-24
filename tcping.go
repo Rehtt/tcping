@@ -126,7 +126,7 @@ func ping(h *net.TCPAddr, i int) (pass int, pingt float32) {
 	open := "is open"
 	t := time.Now()
 	c, err := net.DialTimeout("tcp", h.String(), time.Duration(timeout)*time.Second)
-	pingt = float32(time.Now().UnixNano()-t.UnixNano()) / 1e6
+	pingt = float32(time.Now().Sub(t).Nanoseconds()) / 1e6
 	if err != nil {
 		open = "no response"
 		pass = 0
